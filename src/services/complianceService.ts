@@ -8,13 +8,16 @@ import axios from "axios";
  */
 export async function checkComplianceWithPython(
   webpageText: string,
-  policyText: string
+  policyText: string,
+  mode: "gemini" | "python"
 ): Promise<string[]> {
   try {
     console.log("length of webpageText", webpageText.length);
     console.log("length of policyText", policyText.length);
     const response = await axios.post(
-      "http://python-server:5000/check_compliance",
+      `http://python-server:5000/check_compliance${
+        mode === "gemini" ? "_gemini" : ""
+      }`,
       {
         webpageText,
         policyText,

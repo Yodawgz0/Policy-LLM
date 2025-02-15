@@ -13,6 +13,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipe
 # Set performance optimizations
 torch.set_num_threads(4)  # Adjust if needed
 torch.backends.cudnn.benchmark = True
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateText"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -197,6 +199,97 @@ def compliance_handler():
     except Exception as e:
         logger.error(f"🔥 Critical error processing request: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+
+
+@app.route("/check_compliance_gemini", methods=["POST"])
+def compliance_handler_gemini():
+    """Receives webpage text and policy text, checks compliance via Gemini API."""
+    logger.info("📥 Received compliance check request")
+    
+    try:
+        # Parse JSON request
+        data = request.get_json(force=True)
+        webpage_text = data.get("webpageText", "").strip()
+        policy_text = data.get("policyText", "").strip()
+
+        if not webpage_text or not policy_text:
+            logger.warning("⚠️ Missing required 'webpageText' or 'policyText'")
+            return jsonify({"error": "Missing required fields"}), 400
+
+        logger.info(f"🔎 Analyzing {len(webpage_text)} chars of webpage text vs {len(policy_text)} chars of policy")
+
+        # Call Gemini API
+        compliance_results = analyze_compliance_gemini(webpage_text, policy_text)
+
+        return jsonify({
+            "nonCompliantResults": compliance_results
+        })
+
+    except Exception as e:
+        logger.error(f"🔥 Error processing request: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+# ----------------------------
+# 3. Compliance Check via Gemini API
+# ----------------------------
+def analyze_compliance_gemini(webpage_text: str, policy_text: str):
+    """Uses Gemini API to check compliance between webpage and policy text."""
+    
+    prompt = f"""
+    You are a compliance-checking assistant. Your job is to analyze whether the webpage content violates the provided compliance policy.
+
+    **Webpage Content:** 
+    {webpage_text}
+
+    **Compliance Policy:** 
+    {policy_text}
+
+    Identify specific webpage sentences that might violate the policy and explain why.
+
+    **Response Format (JSON):**
+    {{
+        "nonCompliantResults": [
+            {{
+                "webpageSentence": "<sentence>",
+                "policyClause": "<relevant policy clause>",
+                "confidence": <confidence score (0-1)>
+            }}
+        ]
+    }}
+    """
+
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "prompt": {"text": prompt},
+        "temperature": 0.2,  # Lower temperature for factual consistency
+        "maxOutputTokens": 1024
+    }
+
+    try:
+        response = requests.post(
+            f"{GEMINI_API_URL}?key={GEMINI_API_KEY}",
+            headers=headers,
+            json=payload
+        )
+        response_json = response.json()
+
+        # Extract result
+        try:
+            generated_text = response_json.get("candidates", [{}])[0].get("output", "")
+            compliance_results = json.loads(generated_text) if generated_text else {}
+
+            if "nonCompliantResults" in compliance_results:
+                return compliance_results["nonCompliantResults"]
+            else:
+                return {"rawResponse": generated_text}
+
+        except Exception as e:
+            logger.error(f"❌ Error processing Gemini API response: {str(e)}")
+            return {"error": "Unexpected Gemini API response format"}
+
+
 
 if __name__ == "__main__":
     logger.info("🚀 Starting compliance API on port 5000")

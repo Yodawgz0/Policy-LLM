@@ -6,9 +6,10 @@ export const complianceApiController = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { webpageUrl, policyUrl } = request.body as {
+  const { webpageUrl, policyUrl, mode } = request.body as {
     webpageUrl: string;
     policyUrl: string;
+    mode: "gemini" | "python";
   };
 
   try {
@@ -17,7 +18,8 @@ export const complianceApiController = async (
 
     const nonCompliantResults = await checkComplianceWithPython(
       webpageText,
-      policyText
+      policyText,
+      mode
     );
 
     return reply
