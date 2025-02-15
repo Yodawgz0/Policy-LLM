@@ -6,6 +6,7 @@ import spacy
 import torch
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+import requests
 
 # --------------------------------------
 # 1. Configuration & Logging
@@ -13,7 +14,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipe
 # Set performance optimizations
 torch.set_num_threads(4)  # Adjust if needed
 torch.backends.cudnn.benchmark = True
-GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+GOOGLE_API_KEY=""
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateText"
 
 logging.basicConfig(
@@ -284,10 +285,12 @@ def analyze_compliance_gemini(webpage_text: str, policy_text: str):
                 return compliance_results["nonCompliantResults"]
             else:
                 return {"rawResponse": generated_text}
-
-        except Exception as e:
-            logger.error(f"❌ Error processing Gemini API response: {str(e)}")
-            return {"error": "Unexpected Gemini API response format"}
+        except json.JSONDecodeError:
+            logger.warning("⚠️ Unable to parse structured JSON, returning raw text")
+            return {"rawResponse": generated_text}
+    except Exception as e:
+        logger.error(f"❌ Error processing Gemini API response: {str(e)}")
+        return {"error": "Unexpected Gemini API response format"}
 
 
 

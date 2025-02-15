@@ -4,3 +4,4 @@ transformers==4.37.0
 spacy==3.6.1
 optimum[onnxruntime]
 sentence-transformers
+requests
