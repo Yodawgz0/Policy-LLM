@@ -52,7 +52,7 @@ For compliance analysis, I considered two approaches:
 - Uses **Flask** to expose an endpoint for compliance checking.
 - Runs the analysis in parallel using `ThreadPoolExecutor` to speed up processing.
 
-#### 2. **OpenAI Gemini API**
+#### 2. **Gemini API**
 - When `mode=gemini`, the API sends a request to the Gemini model.
 - The model analyzes webpage text against policy text and returns JSON results.
 - This approach is more scalable but comes with API costs.
