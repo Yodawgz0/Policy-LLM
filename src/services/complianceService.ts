@@ -18,6 +18,9 @@ export async function checkComplianceWithPython(
       {
         webpageText,
         policyText,
+      },
+      {
+        timeout: 70000,
       }
     );
 
