@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  node-server:
+    build: .
+    container_name: policy-checker
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - python-server
+
+  python-server:
+    build: ./python-server
+    container_name: compliance-analyzer
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./python-server:/app
