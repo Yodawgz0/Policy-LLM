@@ -26,7 +26,7 @@ The task was to:
 I started by designing the API to have a single endpoint that takes three parameters:
 1. `webpageUrl` - The URL of the webpage to analyze.
 2. `policyUrl` - The URL of the compliance policy.
-3. `mode` - Whether to use Python-based compliance checking or OpenAI's Gemini API.
+3. `mode` - Whether to use Python-based compliance checking or Gemini API.
 
 ### Step 2: Choosing Fastify Over Express
 Instead of using **Express.js**, I opted for **Fastify** due to its better performance and developer experience. Fastify allows for quick API responses, making it a good choice for a real-time compliance-checking service.
