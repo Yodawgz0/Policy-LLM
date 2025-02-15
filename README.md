@@ -1,4 +1,3 @@
-# Policy-LLM
 
 # Compliance Checker API
 
@@ -110,18 +109,6 @@ Since I wanted to make the system **portable and easy to deploy**, I containeriz
 docker-compose up --build
 ```
 This will spin up both Node.js and Python services.
-
-### Running Manually:
-1. Start the Python server:
-```sh
-cd python-server
-python app.py
-```
-2. Start the Node.js server:
-```sh
-npm install
-node server.js
-```
 
 ## Final Thoughts
 This was an interesting challenge because it combined multiple technologies and required a balance between cost, efficiency, and accuracy. I enjoyed implementing this API in **Fastify** instead of **Express**, as it gave me exposure to a newer framework. The compliance-checking logic using **zero-shot classification** in Python was also a learning experience, especially in optimizing performance.
