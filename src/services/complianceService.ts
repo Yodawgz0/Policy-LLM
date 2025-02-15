@@ -20,7 +20,7 @@ export async function checkComplianceWithPython(
         policyText,
       },
       {
-        timeout: 70000,
+        timeout: 0,
       }
     );
 
